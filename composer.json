@@ -1,0 +1,37 @@
+{
+  "name": "nettpack/stage",
+  "type": "extensions",
+  "description": "Nettpack stage js for Nette",
+  "keywords": ["nettpack","stage"],
+  "homepage": "https://github.com/nettpack/stage",
+  "license": [],
+  "authors": [
+    {
+      "name": "Radek Zíka",
+      "homepage": "http://dipcom.cz",
+      "email": "radek.zika@dipcom.cz"
+    },
+    {
+      "name": "Mykola Chomenko",
+      "homepage": "http://dipcom.cz",
+      "email": "mykola.chomenko@dipcom.cz"
+    }
+  ],
+  "support": {
+    "email": "radek.zika@dipcom.cz",
+    "issues": "https://github.com/nettpack/stage"
+  },
+  "require": {
+    "php": "^7.2",
+    "nette/di": "^2.4",
+    "nette/application": "^2.4",
+    "nette/bootstrap": "^2.4",
+    "latte/latte": "^2.4",
+    "nette/utils": "^2.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "NettPack\\Stage\\": "src/"
+    }
+  }
+}
