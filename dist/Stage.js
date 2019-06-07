@@ -82,6 +82,10 @@ function () {
   }, {
     key: "addPageComponent",
     value: function addPageComponent(name, object, module, control, action) {
+      if (!module || !control || !action) {
+        throw "module, control, action must be specified!";
+      }
+
       var newObject = new object(this, module, control, action);
 
       if (!newObject instanceof _BasePageComponent.BasePageComponent) {
