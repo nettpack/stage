@@ -1,2 +1,3 @@
 export * from './Stage'
-export * from './BaseComponent'
+export * from './BasePageComponent'
+export * from './BaseGlobalComponent'

@@ -1,47 +1,109 @@
-import {BaseComponent} from "./BaseComponent";
+import {BasePageComponent} from "./BasePageComponent";
+import {BaseGlobalComponent} from "./BaseGlobalComponent";
 
 export class Stage {
 
-	constructor() {
-		this.components = {}
+	/**
+	 * @param {{}} Config
+	 */
+	constructor(Config) {
+		this.globalComponents = {};
+		this.pageComponents = {};
+		this.config = Object.assign({
+			module: undefined,
+			control: undefined,
+			action: undefined,
+		}, Config);
 	}
 
 	/**
 	 * @param {string} name
-	 * @param {BaseComponent} object
-	 * @return {BaseComponent}
+	 * @param {BaseGlobalComponent} object
+	 * @return {BaseGlobalComponent}
 	 */
-	addComponent(name, object) {
+	addGlobalComponent(name, object) {
 		const newObject = new object(this);
-		if (!newObject instanceof BaseComponent) {
+		if (!newObject instanceof BaseGlobalComponent) {
 			throw "Component is not instance of Stage BaseComponent!";
 		}
-		this.components[name] = newObject;
+		this.globalComponents[name] = newObject;
 
-		return this.components[name];
+		return this.globalComponents[name];
 	}
 
 	/**
 	 * @return {{}}
 	 */
-	getComponents() {
-		return this.components;
+	getGlobalComponents() {
+		return this.globalComponents;
 	}
 
 	/**
 	 * @param {string} componentName
-	 * @return {*}
+	 * @return {BaseGlobalComponent}
 	 */
-	getComponentByName(componentName) {
-		return this.components[componentName];
+	getGlobalComponentByName(componentName) {
+		return this.globalComponents[componentName];
+	}
+
+	/**
+	 * @param {string} name
+	 * @param {BasePageComponent} object
+	 * @param {string} module
+	 * @param {string} control
+	 * @param {string} action
+	 * @return {BasePageComponent}
+	 */
+	addPageComponent(name, object, module, control, action) {
+
+		if (!module || !control || !action) {
+			throw "module, control, action must be specified!";
+		}
+
+		const newObject = new object(this, module, control, action);
+		if (!newObject instanceof BasePageComponent) {
+			throw "Component is not instance of Stage BasePageComponent!";
+		}
+		this.pageComponents[name] = newObject;
+
+		return this.pageComponents[name];
+	}
+
+	/**
+	 * @return {{}}
+	 */
+	getPageComponents() {
+		return this.pageComponents;
+	}
+
+	/**
+	 * @param {string} componentName
+	 * @return {BasePageComponent}
+	 */
+	getPageComponentByName(componentName) {
+		return this.pageComponents[componentName];
+	}
+
+	getPageComponentsByAction(module, control, action) {
+		let currentPageComponents = [];
+		for (let i in this.pageComponents) {
+			const component = this.pageComponents[i];
+			if (component.module === module && component.control === control && component.action === action) {
+				currentPageComponents.push({
+					'name': i,
+					'component': component
+				});
+			}
+		}
+		return currentPageComponents;
 	}
 
 	/**
 	 * @return {boolean}
 	 */
 	build() {
-		for (let component in this.components) {
-			this.components[component].onBuild();
+		for (let component in this.globalComponents) {
+			this.globalComponents[component].onBuild();
 		}
 
 		return true;
@@ -51,8 +113,13 @@ export class Stage {
 	 * @return {boolean}
 	 */
 	run() {
-		for (let component in this.components) {
-			this.components[component].onStartup();
+		for (let component in this.globalComponents) {
+			this.globalComponents[component].onStartup();
+		}
+
+		const listCurrentPageComponents = this.getPageComponentsByAction(this.config.module, this.config.control, this.config.action);
+		for (let currentPageComponent of listCurrentPageComponents) {
+			currentPageComponent['component'].run();
 		}
 
 		return true;

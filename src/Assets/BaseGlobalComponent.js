@@ -1,4 +1,4 @@
-export class BaseComponent {
+export class BaseGlobalComponent {
 
 	constructor(Stage) {
 		this.stage = Stage;
