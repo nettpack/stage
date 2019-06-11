@@ -30,6 +30,11 @@ class NettPack
 	private $sagas = [];
 
 	/**
+	 * @var array
+	 */
+	private $snippetSagas = [];
+
+	/**
 	 * @return string
 	 */
 	public function getModule(): string
@@ -99,6 +104,42 @@ class NettPack
 	{
 		$this->sagas[] = $saga;
 		return $this;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getPayload()
+	{
+		return [
+			'action' => [
+				'module' => $this->getModule(),
+				'presenter' => $this->getPresenter(),
+				'action' => $this->getAction(),
+				'sagas' => $this->getSagas(),
+				'snippetSagas' => $this->getSnippetSagas(),
+			],
+		];
+	}
+
+	/**
+	 * @param string $name
+	 * @param string $snippetName
+	 */
+	public function addSnippetSaga(string $name, string $snippetName)
+	{
+		$this->snippetSagas[] = [
+			'name' => $name,
+			'snippetName' => $snippetName,
+		];
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getSnippetSagas(): array
+	{
+		return $this->snippetSagas;
 	}
 
 }

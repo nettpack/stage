@@ -1,9 +1,3 @@
 <script>
-	window.nettpack = {
-		action: {
-			module: {$nettpack->getModule()},
-			presenter: {$nettpack->getPresenter()},
-			action: {$nettpack->getAction()}
-		}
-	};
+	window.nettpack = {json_encode($nettpack->getPayload())|noescape};
 </script>

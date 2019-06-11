@@ -8,6 +8,8 @@ export class Action {
 		this.module = action.module;
 		this.presenter = action.presenter;
 		this.action = action.action;
+		this.sagas = action.sagas;
+		this.snippetSagas = action.snippetSagas;
 	}
 
 	/**

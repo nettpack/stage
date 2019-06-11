@@ -1,4 +1,4 @@
 export * from './Application'
 export * from './BaseComponent'
 export * from './AppRequest'
-export * from './Ajax'
+export * from './AjaxComponent'

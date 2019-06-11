@@ -27,7 +27,8 @@
     "nette/application": "^2.4",
     "nette/bootstrap": "^2.4",
     "latte/latte": "^2.4",
-    "nette/utils": "^2.4"
+    "nette/utils": "^2.4",
+    "doctrine/annotations": "^1.6"
   },
   "autoload": {
     "psr-4": {
