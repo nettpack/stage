@@ -36,8 +36,8 @@
   },
   "extra": {
     "nettpack": {
-      "plugins": {
-        "stage": "./src/Assets/main.js"
+      "resolve": {
+        "Stage": "./src/Assets/main.js"
       }
     }
   }
