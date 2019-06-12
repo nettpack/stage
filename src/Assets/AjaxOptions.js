@@ -1,23 +1,14 @@
 export function AjaxOptions(option) {
 	let defaultOption = {
+		url: '',
 		type: 'GET',
 		dataType: 'json',
-		handle: '',
-		url: '',
-		data : false,
-		async : true,
-		success : function (){},
-		onAjax : [],
-		onSuccess : function (){},
-		actionsOnSuccess : [],
-		onError : function (){},
-		beforeExecuteSnippets : function (){},
-		afterExecuteSnippets : function (){},
-		beforeRedraw : function (){},
-		actionsAfterExecuteSnippets : [],
-		inProcess : function (){},
-		error : function (){},
+		data: false,
+		contentType: false,
+		processData : false,
+		success: function () {}
 	};
+
 
 	return Object.assign({}, defaultOption, option);
 }
