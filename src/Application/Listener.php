@@ -75,8 +75,6 @@ class Listener implements Subscriber
 		if ($control->getPresenter()->isAjax() && !empty($this->nettPack->getSnippetSagas())) {
 			foreach ($this->nettPack->getSnippetSagas() as $saga) {
 				$snippet = str_replace('snippet--', '', $saga['snippetName']);
-				barDump($snippet);
-
 				$control->getPresenter()->redrawControl($snippet);
 			}
 		}
