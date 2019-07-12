@@ -7,18 +7,25 @@
 namespace NettPack\Stage\DI;
 
 use NettPack\Stage\Application\INettPackControl;
+use NettPack\Stage\Application\INettPackLoaderControl;
 use NettPack\Stage\Application\Listener;
 use Kdyby\Events\DI\EventsExtension;
 use Nette\Configurator;
 use Nette\DI\Compiler;
 use Nette\DI\CompilerExtension;
 use NettPack\Stage\Application\NettPack;
+use NettPack\Stage\Application\NettPackLoaderControl;
 
 class StageExtension extends CompilerExtension
 {
 
+	private $defaultConfig = [
+		'hashFile' => 'webpack.hashes.js',
+	];
+
 	public function loadConfiguration()
 	{
+		$config = $this->getConfig($this->defaultConfig);
 		$builder = $this->getContainerBuilder();
 
 		$builder->addDefinition($this->prefix("application.listener"))
@@ -32,12 +39,10 @@ class StageExtension extends CompilerExtension
 			->setImplement(INettPackControl::class)
 			->setInject(TRUE);
 
-	}
-
-	public function beforeCompile()
-	{
-
-
+		$builder->addDefinition($this->prefix("application.nettpackLoaderControl"))
+			->setImplement(INettPackLoaderControl::class)
+			->setFactory(NettPackLoaderControl::class, ['config' => $config])
+			->setInject(TRUE);
 	}
 
 	/**

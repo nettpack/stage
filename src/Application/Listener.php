@@ -8,18 +8,13 @@ namespace NettPack\Stage\Application;
 
 use Doctrine\Common\Annotations\Reader;
 use Kdyby\Events\Subscriber;
-use Latte\Engine;
 use Nette\Application\Application;
 use Nette\Application\Helpers;
 use Nette\Application\IResponse;
 use Nette\Application\Request;
 use Nette\Application\Responses\JsonResponse;
-use Nette\Application\Responses\TextResponse;
 use Nette\Application\UI\Control;
-use Nette\Application\UI\ITemplateFactory;
 use Nette\Application\UI\Presenter;
-use Nette\Bridges\ApplicationLatte\Template;
-use Nette\Bridges\ApplicationLatte\TemplateFactory;
 use \NettPack\Stage\Annotations;
 
 class Listener implements Subscriber
@@ -56,10 +51,9 @@ class Listener implements Subscriber
 		];
 	}
 
-	public function onAnchor($control)
+	public function onAnchor(Control $control)
 	{
 		$reflection = new \ReflectionClass($control);
-
 		/** @var Annotations\NettPack $annotation */
 		$annotation = $this->reader->getClassAnnotation($reflection, Annotations\NettPack::class);
 		if ($annotation) {
@@ -72,6 +66,18 @@ class Listener implements Subscriber
 				foreach ($annotation->snippetSagas as $snippetSaga) {
 					$this->nettPack->addSnippetSaga($snippetSaga->saga, $snippetSaga->snippet);
 				}
+			}
+		}
+
+		/**
+		 * REDRAW SNIPPETS IF IS AJAX AND CONTROL WITH SAGAS HAS BEEN ANCHORED
+		 */
+		if ($control->getPresenter()->isAjax() && !empty($this->nettPack->getSnippetSagas())) {
+			foreach ($this->nettPack->getSnippetSagas() as $saga) {
+				$snippet = str_replace('snippet--', '', $saga['snippetName']);
+				barDump($snippet);
+
+				$control->getPresenter()->redrawControl($snippet);
 			}
 		}
 	}
@@ -92,8 +98,6 @@ class Listener implements Subscriber
 					$this->nettPack->addSaga($saga);
 				}
 			}
-
-
 			$payload = $IResponse->getPayload();
 			$payload->nettpack = $this->nettPack->getPayload();
 		}

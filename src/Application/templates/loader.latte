@@ -1,0 +1,6 @@
+{foreach $hashes as $hash}
+	{if $currentModule == $hash->name}
+		<script src="{$basePath}/dist/{$hash->name}/app.{$hash->hash}.js"></script>
+		<link rel="stylesheet" href="{$basePath}/dist/{$hash->name}/app.{$hash->hash}.css">
+	{/if}
+{/foreach}

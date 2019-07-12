@@ -47,10 +47,8 @@ class AjaxListenerComponent extends BaseComponent {
 
 	redrawSnippets(payload, snippetSagas) {
 		for (let snippetName in payload.snippets) {
-
 			let done = false;
 			let snippetContent = $(payload.snippets[snippetName]);
-
 			for (let snippetSaga of snippetSagas) {
 				if (snippetSaga.snippetName === snippetName) {
 					App.store.dispatch({
@@ -86,6 +84,11 @@ class AjaxListenerComponent extends BaseComponent {
 		XMLHttpRequest.prototype.send = function() {
 			this.addEventListener('load', function () {
 				let response = JSON.parse(this.response)
+				/** DISABLE HOT RELOAD AJAX REQUEST */
+				if (!response.nettpack) {
+					return
+				}
+
 				const Action = new ActionObject(response.nettpack.action);
 				Action.data = response;
 				Action.ajax = true;
