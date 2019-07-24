@@ -1,6 +1,6 @@
 import "reflect-metadata";
-import {Metadata} from "./Metadata";
-import {MetadataKeys} from "./MetadataKeys";
+import {Metadata} from "./Metadata.ts";
+import {MetadataKeys} from "./MetadataKeys.ts";
 
 export function Reducer(type: string){
 	return (target: any, key: string, descriptor?) => {

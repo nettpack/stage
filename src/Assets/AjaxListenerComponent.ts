@@ -6,7 +6,7 @@ import {SAGA_AJAX_RESPONSE_STARTED, SAGA_REDRAW_SNIPPET} from "./types";
 import {BaseComponent} from "./BaseComponent.ts"
 import {Saga} from "./Annotation/Saga.ts"
 import {App} from "./Application.ts"
-import {Action as ActionObject} from "./Action"
+import {Action as ActionObject} from "./Action.ts"
 
 class AjaxListenerComponent extends BaseComponent {
 

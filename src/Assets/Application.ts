@@ -4,7 +4,7 @@ import { fork, takeLatest } from 'redux-saga/effects'
 import createSagaMiddleware from 'redux-saga';
 import {Action} from './Action.ts';
 import "reflect-metadata";
-import {MetadataKeys} from './Annotation/MetadataKeys';
+import {MetadataKeys} from './Annotation/MetadataKeys.ts';
 
 class Application{
 

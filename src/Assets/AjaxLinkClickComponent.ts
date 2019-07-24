@@ -2,8 +2,8 @@ if (module.hot) {
 	module.hot.accept();
 }
 
-import {BaseComponent} from "./BaseComponent"
-import {App} from "./Application"
+import {BaseComponent} from "./BaseComponent.ts"
+import {App} from "./Application.ts"
 import {AjaxOptions} from "./AjaxOptions";
 import {createUrlFromElement} from "./Utils";
 import {SAGA_CLICK_AJAX_REQUEST_STARTED} from "./types";
