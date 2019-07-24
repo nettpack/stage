@@ -3,19 +3,20 @@ if (module.hot) {
 }
 
 import {SAGA_AJAX_RESPONSE_STARTED, SAGA_REDRAW_SNIPPET} from "./types";
-import {BaseComponent} from "./BaseComponent"
-import {App} from "./Application"
+import {BaseComponent} from "./BaseComponent.ts"
+import {Saga} from "./Annotation/Saga.ts"
+import {App} from "./Application.ts"
 import {Action as ActionObject} from "./Action"
 
 class AjaxListenerComponent extends BaseComponent {
 
 	initial() {
 		super.initial();
-		this.createSaga(SAGA_AJAX_RESPONSE_STARTED, this.sagaAjax);
 		this.listenerOnAjax();
 	}
 
-	sagaAjax(action) {
+	@Saga(SAGA_AJAX_RESPONSE_STARTED)
+	public sagaAjax(action) {
 		try {
 			const {payload} = action;
 			const {Action} = payload;
@@ -45,7 +46,7 @@ class AjaxListenerComponent extends BaseComponent {
 	}
 
 
-	redrawSnippets(payload, snippetSagas) {
+	private redrawSnippets(payload, snippetSagas) {
 		for (let snippetName in payload.snippets) {
 			let done = false;
 			let snippetContent = $(payload.snippets[snippetName]);
@@ -77,9 +78,9 @@ class AjaxListenerComponent extends BaseComponent {
 		}
 	}
 
-	listenerOnAjax() {
+	private listenerOnAjax() {
 		let Send = XMLHttpRequest.prototype.send;
-		const App = this.app;
+		const the = this;
 
 		XMLHttpRequest.prototype.send = function() {
 			this.addEventListener('load', function () {
@@ -92,7 +93,7 @@ class AjaxListenerComponent extends BaseComponent {
 				const Action = new ActionObject(response.nettpack.action);
 				Action.data = response;
 				Action.ajax = true;
-				App.runAction(Action);
+				the.app.runAction(Action);
 				App.store.dispatch({
 					type: SAGA_AJAX_RESPONSE_STARTED,
 					payload: {

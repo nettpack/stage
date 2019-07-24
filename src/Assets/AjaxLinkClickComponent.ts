@@ -7,22 +7,24 @@ import {App} from "./Application"
 import {AjaxOptions} from "./AjaxOptions";
 import {createUrlFromElement} from "./Utils";
 import {SAGA_CLICK_AJAX_REQUEST_STARTED} from "./types";
+import {Saga} from "./Annotation/Saga.ts"
 
 class AjaxLinkClickComponent extends BaseComponent {
 
 	initial() {
 		super.initial();
-		this.createSaga(SAGA_CLICK_AJAX_REQUEST_STARTED, this.clickSaga);
 	}
 
-	clickSaga(action) {
+
+	@Saga(SAGA_CLICK_AJAX_REQUEST_STARTED)
+	public clickSaga(action) {
 		const {element, event}  = action.payload;
 		if (!element.is("a")) {
 			return
 		}
 		event.preventDefault();
 		let defaultOption = AjaxOptions({});
-		this.runAjaxFromElement(element, defaultOption, event);
+		AjaxLinkClickComponent.runAjaxFromElement(element, defaultOption, event);
 	}
 
 
@@ -31,7 +33,7 @@ class AjaxLinkClickComponent extends BaseComponent {
 	 * @param {*} option
 	 * @param {Event} e
 	 */
-	runAjaxFromElement(el, option, e) {
+	private static runAjaxFromElement(el, option, e) {
 		e.preventDefault();
 		let url = createUrlFromElement(el);
 		option.url = url.toString();

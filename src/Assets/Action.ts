@@ -1,14 +1,14 @@
 export class Action {
 
-	constructor(action = {
-		module: "",
-		presenter: undefined,
-		action: undefined,
-		sagas: undefined,
-		snippetSagas: undefined,
-		data: undefined,
-		ajax: false,
-	}) {
+	public module: "";
+	public presenter: undefined;
+	public action: undefined;
+	public sagas: undefined;
+	public snippetSagas: undefined;
+	public data: undefined;
+	public ajax: false;
+
+	constructor(action) {
 		this.module = action.module;
 		this.presenter = action.presenter;
 		this.action = action.action;
@@ -21,7 +21,7 @@ export class Action {
 	/**
 	 * @return {string}
 	 */
-	getType() {
+	public getType() {
 		return this.module + ":" + this.presenter + ":" + this.action;
 	}
 

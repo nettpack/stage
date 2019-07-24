@@ -2,28 +2,44 @@ import { createStore, applyMiddleware, combineReducers, compose } from 'redux';
 import { createLogger } from 'redux-logger';
 import { fork, takeLatest } from 'redux-saga/effects'
 import createSagaMiddleware from 'redux-saga';
-import { Action } from './Action';
+import {Action} from './Action.ts';
+import "reflect-metadata";
+import {MetadataKeys} from './Annotation/MetadataKeys';
 
 class Application{
 
-	constructor() {
-		/**
-		 * @type {Store}
-		 */
-		this.store = undefined;
-		/**
-		 * @type {{BaseComponent}}
-		 */
-		this.components = {};
-		this.reducer = {
-			app: (state = {}, action) => {return state}
-		};
-		this.sagas = [];
-		this._hot = {};
-		this.middlewares = {};
+	/**
+	 * @type {Store}
+	 */
+	private store;
+
+	public runned = false;
+
+	private components: any = {};
+
+	private reducer: any = {
+		app: (state = {}, action) => {return state}
+	};
+
+	private sagas: Array<any> = [];
+
+	private _hot: any = {};
+
+	private middlewares: any = {};
+
+	public getStore() {
+		if (!this.runned) {
+			throw new Error('App is not initialized!');
+		}
+
+		return this.store;
 	}
 
-	addMiddleware(name, middleware) {
+	/**
+	 * @param {string} name
+	 * @param {function} middleware
+	 */
+	public addMiddleware(name, middleware) {
 		this.middlewares[name] = middleware;
 	}
 
@@ -31,7 +47,7 @@ class Application{
 	 * @param {string} name
 	 * @param control
 	 */
-	addComponent(name, control) {
+	public addComponent(name, control) {
 		this.components[name] = {
 			name: name,
 			component: control,
@@ -42,21 +58,21 @@ class Application{
 	/**
 	 * @return {{}}
 	 */
-	getComponents() {
+	public getComponents() {
 		return this.components;
 	}
 
 	/**
 	 * @param {function} reducer
 	 */
-	addReducer(name, reducer) {
+	private addReducer(name, reducer) {
 		this.reducer[name] = reducer;
 	}
 
 	/**
 	 * @param {function} saga
 	 */
-	addSaga(type, saga, object) {
+	private addSaga(type, saga, object) {
 		this.sagas.push({
 			type: type,
 			saga: saga,
@@ -64,42 +80,89 @@ class Application{
 		});
 	}
 
-	run() {
+	public run() {
+
+		let components = [];
+
 		/**
 		 * Initialize components
 		 */
 		for (let name in this.components) {
 			let data = this.components[name];
 			const component = data.component;
-			data.instance = new component(this);
+			components.push(component)
+			let metadataSaga = Reflect.getMetadata(MetadataKeys.Saga, component.prototype);
+
+			if(typeof metadataSaga !== "undefined") {
+				metadataSaga.forEach((meta) => {
+					if (!meta.isMethod()) {
+						return;
+					}
+
+					this.addSaga(meta.getParameter('type'), meta.getTarget().value, component.prototype);
+				});
+			}
+
+			let metadataReducer = Reflect.getMetadata(MetadataKeys.Reducer, component.prototype);
+
+			if(typeof metadataReducer !== "undefined") {
+				metadataReducer.forEach((meta) => {
+					if (!meta.isMethod()) {
+						return;
+					}
+
+
+					this.addReducer(meta.getParameter('type'), meta.getTarget().value);
+				});
+			}
 		}
 
-		/**
-		 * Create root sagas
-		 */
+		const rootSaga = this.registerSagas();
+		this.registerStore(rootSaga);
+
+		for (let comp of components) {
+			comp.prototype.instance = new comp(App);
+		}
+
+		window.addEventListener('load', () => {
+			this.runAction(this._getRequestAction());
+		});
+
+		this.runned = true;
+	}
+
+
+	/**
+	 * @return {rootSaga}
+	 */
+	private registerSagas() {
 		const sagasList = [];
 		for (let data of this.sagas) {
 			let latest = function * () {
 				yield takeLatest(data.type, function () {
-					data.saga.call(data.object, ...arguments)
+					let  wrapped = data.object;
+					if (typeof wrapped.instance !== "undefined") {
+						wrapped = wrapped.instance;
+					}
+					data.saga.call(wrapped, ...arguments)
 				});
 			};
 			sagasList.push(latest);
 		}
-		function *rootSaga() {
+		return function *rootSaga() {
 			let sagas = [];
 			for (let saga of sagasList) {
 				sagas.push(yield fork(saga))
 			}
 			yield sagas;
 		}
+	}
 
-		/**
-		 * Create store and run middlewarea and run action
-		 */
+	/**
+	 * @param rootSaga
+	 */
+	private registerStore(rootSaga) {
 		const rootReducer = combineReducers(this.reducer);
-
-
 
 		if (!this.store) {
 			this._hot.sagaMiddleware = createSagaMiddleware();
@@ -128,22 +191,21 @@ class Application{
 			this._hot.sagaTask.cancel();
 			this._hot.sagaTask.toPromise().then(() => {
 				this._hot.sagaTask = this._hot.sagaMiddleware.run(rootSaga);
+
 				let loaded = this._hot.appLoaded || false;
 				if (loaded) {
 					this.runAction(this._getRequestAction())
 				}
 			});
+
 			this.sagas = [];
 		}
-		window.addEventListener('load', () => {
-			this.runAction(this._getRequestAction())
-		});
 	}
 
 	/**
 	 * @param {Action} action
 	 */
-	runAction(action) {
+	public runAction(action) {
 		this._hot.appLoaded = true;
 		this.store.dispatch({
 			type: action.getType(),
@@ -155,11 +217,21 @@ class Application{
 	 * @return {Action}
 	 * @private
 	 */
-	_getRequestAction() {
-		//TODO: on ajax
+	private _getRequestAction() {
 		const {action} = window.nettpack;
 		return new Action(action);
 	}
-
 }
+
 export let App = new Application();
+
+window.stage = {
+	app: App
+};
+
+declare global {
+	interface Window {
+		nettpack: any;
+		stage: any;
+	}
+}

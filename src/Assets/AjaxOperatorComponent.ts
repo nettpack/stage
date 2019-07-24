@@ -4,8 +4,8 @@ if (module.hot) {
 	module.hot.accept();
 }
 
-import {BaseComponent} from "./BaseComponent"
-import {App} from "./Application"
+import {BaseComponent} from "./BaseComponent.ts"
+import {App} from "./Application.ts"
 
 
 class AjaxOperatorComponent extends BaseComponent {

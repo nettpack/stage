@@ -51,17 +51,17 @@ Required
 		module.hot.accept();
 	}
 	
-	import {App, BaseComponent, SAGA_REDRAW_SNIPPET} from "Stage"
+	import {App, BaseComponent, SAGA_REDRAW_SNIPPET, Saga, Reducer} from "Stage"
 	
 	class TestControlComponent extends BaseComponent {
 	
 		initial() {
 			super.initial();
 			this.installPlugins();
-			this.createSaga(SAGA_REDRAW_SNIPPET, this.installPlugins);
 		}
 	
-		installPlugins(action){
+		@Saga(SAGA_REDRAW_SNIPPET)
+		public installPlugins(action = null){
 			let target = document;
 			if (action) {
 				const {content} = action.payload;
@@ -74,7 +74,7 @@ Required
 	App.addComponent("TestControlComponent", TestControlComponent);
 	````
 	- Function initial start after App start function run();
-	- Function createSaga('TYPE_NAME', function)
+	- Annotation @Saga('TYPE_NAME')
 		- TYPE_NAME name of event
 		- function which may be run after event fire(to this action has been insert parameter action, this is Action object /vendor/nettpack/stage/src/Assets/Action.js)
 		- SAGA_REDRAW_SNIPPET - fire after redraw snippet action
@@ -96,7 +96,8 @@ Required
 	 
 	 - After redrawControl my-component fire saga event SAGA_MY_COMPONENT and callback which has been on this event set
 	````javascript
-	this.createSaga(SAGA_MY_COMPONENT, myFunction);
+	@Saga('SAGA_MY_COMPONENT')
+	public myFunction(action) {}
 	````
 - If you want after Ajax action run another saga. To request data or parameters place parameter 'saga' and value 'name_of_saga_may_be_run_after_response'
 	````javascript
@@ -118,34 +119,32 @@ Required
 
 - Reducer example:
 ````javascript
-
-this.createReducer('Test', this.testReducer)
-
-testReducer(state = {
-	myObject: {
-		A: undefined,
-		B: undefined,
-	}
-}, action) {
-	switch (action.type) {
-		// Listening on TEST_SAGA and save new State from payload
-		case 'TEST_SAGA': {
-			const myObject = action.payload.myObject;
-			return Object.assign({}, state, {
-				myObject,
-			});
-		}
-		default: {
-
-			return state;
-		}
-	}
-}
+@Reducer('TEST')
+public testReducer(state = {
+       	myObject: {
+       		A: undefined,
+       		B: undefined,
+       	}
+       }, action) {
+       	switch (action.type) {
+       		// Listening on TEST_SAGA and save new State from payload
+       		case 'TEST_SAGA': {
+       			const myObject = action.payload.myObject;
+       			return Object.assign({}, state, {
+       				myObject,
+       			});
+       		}
+       		default: {
+       
+       			return state;
+       		}
+       	}
+       }
 ````
 
 - And from App you can this reducer call 
 ````javascript
-App.store.dispatch({
+App.getStore().dispatch({
 	type: 'TEST_SAGA',
 	payload: {
 		myObject: {
