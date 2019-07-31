@@ -20,13 +20,17 @@ class StageExtension extends CompilerExtension
 {
 
 	private $defaultConfig = [
-		'hashFile' => 'webpack.hashes.js',
+		'hashFile' => NULL,
 	];
 
 	public function loadConfiguration()
 	{
-		$config = $this->getConfig($this->defaultConfig);
 		$builder = $this->getContainerBuilder();
+		if ($this->defaultConfig["hashFile"] === NULL && isset($builder->parameters["wwwDir"])) {
+			$this->defaultConfig["hashFile"] = $builder->parameters["wwwDir"] . "/../webpack.hashes.js";
+		}
+
+		$config = $this->getConfig($this->defaultConfig);
 
 		$builder->addDefinition($this->prefix("application.listener"))
 			->setFactory(Listener::class)
