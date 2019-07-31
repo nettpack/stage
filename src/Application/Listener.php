@@ -82,8 +82,9 @@ class Listener implements Subscriber
 
 	public function onResponse(Application $application, IResponse $IResponse)
 	{
-		if ($IResponse instanceof JsonResponse) {
-
+		/** @var Presenter $presenter */
+		$presenter = $application->getPresenter();
+		if ($IResponse instanceof JsonResponse && $presenter->isAjax()) {
 			/** @var Request $request */
 			foreach ($application->getRequests() as $request) {
 				$method = $request->getMethod();
