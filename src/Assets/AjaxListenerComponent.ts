@@ -18,15 +18,14 @@ class AjaxListenerComponent extends BaseComponent {
 	@Saga(SAGA_AJAX_RESPONSE_STARTED)
 	public sagaAjax(action) {
 		try {
-			const {payload} = action;
-			const {Action} = payload;
+			const {Action} = action.payload;
 
 			if (Action.data.snippets) {
 				let snippetSagas = [];
 				if (Action.snippetSagas) {
 					snippetSagas = Action.snippetSagas;
 				}
-				this.redrawSnippets(Action.data, snippetSagas);
+				this.redrawSnippets(Action, snippetSagas);
 			}
 
 			for (let saga of Action.sagas) {
@@ -46,7 +45,9 @@ class AjaxListenerComponent extends BaseComponent {
 	}
 
 
-	private redrawSnippets(payload, snippetSagas) {
+	private redrawSnippets(Action, snippetSagas) {
+		const payload = Action.data;
+
 		for (let snippetName in payload.snippets) {
 			let done = false;
 			let snippetContent = $(payload.snippets[snippetName]);
@@ -65,17 +66,26 @@ class AjaxListenerComponent extends BaseComponent {
 			}
 
 			if (!done) {
-				$(document).find('#' + snippetName).html(snippetContent);
+				let content = $(document).find('#' + snippetName).html(snippetContent);
 				App.store.dispatch({
 					type: SAGA_REDRAW_SNIPPET,
-					payload: {
+					payload: { // tady budou paloady
 						snippetName: snippetName,
-						content : snippetContent,
+						content : content,
 						response: payload
 					}
 				});
 			}
 		}
+	}
+
+	@Saga(SAGA_REDRAW_SNIPPET)
+	public runAction(action) {
+		const {snippetName, content, response} = action.payload;
+		const Action = new ActionObject(response.nettpack.action);
+		Action.data = Object.assign({}, response, {snippetName, content});
+		Action.ajax = true;
+		this.app.runAction(Action);
 	}
 
 	private listenerOnAjax() {
@@ -84,7 +94,11 @@ class AjaxListenerComponent extends BaseComponent {
 
 		XMLHttpRequest.prototype.send = function() {
 			this.addEventListener('load', function () {
-				let response = JSON.parse(this.response)
+				let response = JSON.parse(this.response);
+				if (response.redirect) {
+					window.location.replace(response.redirect);
+				}
+
 				/** DISABLE HOT RELOAD AJAX REQUEST */
 				if (!response.nettpack) {
 					return
@@ -93,7 +107,7 @@ class AjaxListenerComponent extends BaseComponent {
 				const Action = new ActionObject(response.nettpack.action);
 				Action.data = response;
 				Action.ajax = true;
-				the.app.runAction(Action);
+				// the.app.runAction(Action);
 				App.store.dispatch({
 					type: SAGA_AJAX_RESPONSE_STARTED,
 					payload: {
