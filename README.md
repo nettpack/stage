@@ -109,6 +109,15 @@ Required
 		data: formData,	
 	});
 	````
+- If you want into saga pass another custom parameter please use function ``addSagasParameter``
+
+	````javascript
+	import {addSagasParameter} from "Stage";
+	const formData = new FormData();
+	addSagasParameter(formData, 'paramName', 'paramValue');
+	
+	````
+
 
 #### Reducers
 
@@ -118,6 +127,7 @@ Required
 
 
 - Reducer example:
+
 ````javascript
 @Reducer('TEST')
 public testReducer(state = {
@@ -143,6 +153,7 @@ public testReducer(state = {
 ````
 
 - And from App you can this reducer call 
+
 ````javascript
 App.getStore().dispatch({
 	type: 'TEST_SAGA',
