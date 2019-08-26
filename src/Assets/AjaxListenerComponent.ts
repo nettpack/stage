@@ -94,26 +94,30 @@ class AjaxListenerComponent extends BaseComponent {
 
 		XMLHttpRequest.prototype.send = function() {
 			this.addEventListener('load', function () {
-				let response = JSON.parse(this.response);
-				if (response.redirect) {
-					window.location.replace(response.redirect);
-				}
-
-				/** DISABLE HOT RELOAD AJAX REQUEST */
-				if (!response.nettpack) {
-					return
-				}
-
-				const Action = new ActionObject(response.nettpack.action);
-				Action.data = response;
-				Action.ajax = true;
-				// the.app.runAction(Action);
-				App.store.dispatch({
-					type: SAGA_AJAX_RESPONSE_STARTED,
-					payload: {
-						Action: Action
+				try {
+					let response = JSON.parse(this.response);
+					if (response.redirect) {
+						window.location.replace(response.redirect);
 					}
-				})
+
+					/** DISABLE HOT RELOAD AJAX REQUEST */
+					if (!response.nettpack) {
+						return
+					}
+
+					const Action = new ActionObject(response.nettpack.action);
+					Action.data = response;
+					Action.ajax = true;
+					// the.app.runAction(Action);
+					App.store.dispatch({
+						type: SAGA_AJAX_RESPONSE_STARTED,
+						payload: {
+							Action: Action
+						}
+					})
+				} catch (e) {
+					return;
+				}
 			});
 			Send.apply(this, arguments)
 
