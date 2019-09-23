@@ -98,7 +98,9 @@ class Listener implements Subscriber
 				}
 			}
 			$payload = $IResponse->getPayload();
-			$payload->nettpack = $this->nettPack->getPayload();
+			if ($payload instanceof \stdClass) {
+				$payload->nettpack = $this->nettPack->getPayload();
+			}
 		}
 	}
 
