@@ -34,3 +34,30 @@ export function validateUrl(url_string) {
 
 	return url_string;
 }
+
+/**
+ *
+ * @param {FormData} formData
+ * @param {string} name
+ * @param value
+ */
+export function addSagasParameter(formData, name, value) {
+
+	let sagasParameters = formData.get('sagasParameters');
+	if (sagasParameters && typeof sagasParameters === 'string') {
+		sagasParameters = JSON.parse(sagasParameters);
+		sagasParameters.push({
+			name: name,
+			value: value
+		});
+		formData.append('sagasParameters', JSON.stringify(sagasParameters));
+	} else {
+		formData.append('sagasParameters', JSON.stringify([{
+			name: name,
+			value: value
+		}]));
+	}
+}
+
+
+

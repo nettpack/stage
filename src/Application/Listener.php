@@ -88,13 +88,34 @@ class Listener implements Subscriber
 			/** @var Request $request */
 			foreach ($application->getRequests() as $request) {
 				$method = $request->getMethod();
-				if ($method == 'POST' && isset($request->getPost()['saga'])) {
-					$saga = $request->getPost()['saga'];
+				$saga = NULL;
+				$sagasParameters = NULL;
+				if ($method == 'POST') {
+					if (isset($request->getPost()['saga'])) {
+						$saga = $request->getPost()['saga'];
+					}
+					if (isset($request->getPost()['sagasParameters'])) {
+						$sagasParameters = $request->getPost()['sagasParameters'];
+					}
 				} else {
 					$saga = $request->getParameter('saga');
+					$sagasParameters = $request->getParameter('sagasParameters');
 				}
 				if ($saga) {
 					$this->nettPack->addSaga($saga);
+				}
+				if ($sagasParameters) {
+					$decodeParameters = json_decode($sagasParameters);
+					if (!is_array($decodeParameters) ) {
+						continue;
+					}
+
+					foreach ($decodeParameters as $parameter) {
+						if (!property_exists($parameter, 'name') || !property_exists($parameter, 'value')) {
+							continue;
+						}
+						$this->nettPack->addSagasParameter($parameter->name, $parameter->value);
+					}
 				}
 			}
 			$payload = $IResponse->getPayload();

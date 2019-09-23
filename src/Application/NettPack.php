@@ -32,6 +32,11 @@ class NettPack
 	/**
 	 * @var array
 	 */
+	private $sagasParameters = [];
+
+	/**
+	 * @var array
+	 */
 	private $snippetSagas = [];
 
 	/**
@@ -117,6 +122,7 @@ class NettPack
 				'presenter' => $this->getPresenter(),
 				'action' => $this->getAction(),
 				'sagas' => $this->getSagas(),
+				'sagasParameters' => $this->getSagasParameters(),
 				'snippetSagas' => $this->getSnippetSagas(),
 			],
 		];
@@ -140,6 +146,25 @@ class NettPack
 	public function getSnippetSagas(): array
 	{
 		return $this->snippetSagas;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getSagasParameters(): array
+	{
+		return $this->sagasParameters;
+	}
+
+	/**
+	 * @param string $name
+	 * @param $value
+	 * @return $this
+	 */
+	public function addSagasParameter(string $name, $value)
+	{
+		$this->sagasParameters[$name] = $value;
+		return $this;
 	}
 
 }
