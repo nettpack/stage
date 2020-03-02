@@ -136,7 +136,12 @@ class Listener implements Subscriber
 
 		list($module, $presenterName) = Helpers::splitName($request->getPresenterName());
 
-		$this->nettPack->setAction($request->getParameter('action'));
+
+        $action = $request->getParameter('action');
+        if (!$action) {
+            $action = "default";
+        }
+		$this->nettPack->setAction($action);
 		$this->nettPack->setModule($module);
 		$this->nettPack->setPresenter($presenterName);
 	}
